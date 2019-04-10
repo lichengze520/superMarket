@@ -18,7 +18,7 @@
       >
         <!-- 帐号 -->
         <el-form-item label="帐号" prop="account">
-          <el-input type="password" v-model="loginForm.account" autocomplete="off"></el-input>
+          <el-input type="text" v-model="loginForm.account" autocomplete="off"></el-input>
         </el-form-item>
         <!-- 密码-->
         <el-form-item label="密码" prop="password">
