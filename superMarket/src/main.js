@@ -1,6 +1,11 @@
 import Vue from 'vue'
 import App from './App.vue'
 import router from './router'
+// 引入request.js
+import request from './utils/request'
+// 挂载原型上
+Vue.prototype.request = request;
+
 /* 引入element-ui */
 import ElementUI from 'element-ui' // 组件
 import 'element-ui/lib/theme-chalk/index.css' // 样式

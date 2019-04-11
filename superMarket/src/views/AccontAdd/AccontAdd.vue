@@ -107,7 +107,7 @@ export default {
         ],
         //用户分组
         userGroup: [
-          { required: true, message:'请选择用户分组', trigger: "change" } //非空
+          { required: true, message: "请选择用户分组", trigger: "change" } //非空
         ]
       }
     };
@@ -119,15 +119,38 @@ export default {
         //如果前端验证通过valid就是true,否则就是false;
         if (valid) {
           //收集账号数据
-          let params={
-            accont:this.accontAddForm.account,
-            password:this.accontAddForm.password,
-            userGroup:this.accontAddForm.userGroup,
-          }
+          let params = {
+            account: this.accontAddForm.account,
+            userGroup: this.accontAddForm.userGroup,
+            password: this.accontAddForm.password
+          };
           console.log(params);
-          
-          alert("添加帐号成功");
-          this.$router.push('/home/accontmanage')//跳转
+          console.log(this.request);
+          // 发送axios请求 把数据发给后端
+          this.request
+            .post("/account/accountadd", params)
+            .then(res => {
+              // 获取后端响应回来的数据
+              let { code, reason } = res;
+              // 判断
+              if (code === 0) {
+                // 成功
+                // 弹成功提示
+                this.$message({
+                  type: "success",
+                  message: reason
+                });
+                // 跳转账号列表
+                this.$router.push("/home/accontmanage");
+              } else if (code === 1) {
+                // 失败
+                // 弹失败提示
+                this.$message.error(reason);
+              }
+            })
+            .catch(err => {
+              console.log(err);
+            });
         } else {
           console.log("前端验证未通过，请重新提交");
           return false;
