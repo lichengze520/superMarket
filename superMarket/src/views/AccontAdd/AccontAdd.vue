@@ -124,8 +124,6 @@ export default {
             userGroup: this.accontAddForm.userGroup,
             password: this.accontAddForm.password
           };
-          console.log(params);
-          console.log(this.request);
           // 发送axios请求 把数据发给后端
           this.request
             .post("/account/accountadd", params)

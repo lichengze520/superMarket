@@ -48,7 +48,7 @@
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
           :current-page="currentPage"
-          :page-sizes="[5, 10, 15, 20]"
+          :page-sizes="[10, 15, 20, 30]"
           :page-size="4"
           layout="total, sizes, prev, pager, next, jumper"
           :total="total"
@@ -76,6 +76,19 @@ export default {
     };
   },
   methods: {
+    //请求所有帐号数据
+    getAccountList() {
+      // 发送axios 请求所有账号数据
+      this.request
+        .get("/account/accountlist")
+        .then(res => {
+          // 把后端请求到的数据 直接赋值给accountTableData
+          this.accountTableData = res;
+        })
+        .catch(err => {
+          console.log(err);
+        });
+    },
     handleEdit() {
       //修改
       console.log("修改");
@@ -93,22 +106,12 @@ export default {
   },
   // 生命周期钩子函数 vue实例对象创建完成 dom还没有生成
   created() {
-    // 发送axios 请求所有账号数据
-    this.request
-      .get("/account/accountlist")
-      .then(res => {
-        // 把后端请求到的数据 直接赋值给accountTableData
-        console.log(res);
-        this.accountTableData = res;
-      })
-      .catch(err => {
-        console.log(err);
-      });
+   this.getAccountList(); //调用所有帐号数据
   },
   filters: {
     // 过滤时间
     filterDate(time) {
-      return moment(time).format("YYYY-MM-DD hh:mm:ss");
+      return moment(time).format("YYYY/MM/DD hh:mm:ss");
     }
   }
 };
