@@ -14,11 +14,11 @@
           ref="ShopAddForm"
           label-width="100px"
           class="demo-ruleForm"
-          style="width:350px"
+          style="width:300px"
         >
           <!--  所属分类-->
           <el-form-item label="所属分类:" prop="classify">
-            <el-select v-model="ShopAddForm.classify" placeholder="选择分类">
+            <el-select v-model="ShopAddForm.classify" placeholder="—— ——选择分类 —— ——">
               <el-option label="区域一" value="shanghai"></el-option>
               <el-option label="区域二" value="beijing"></el-option>
             </el-select>
