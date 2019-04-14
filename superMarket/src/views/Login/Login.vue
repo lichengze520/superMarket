@@ -40,7 +40,8 @@
 <script>
 /* 引入验证密码函数 */
 import { passwordReg } from "@/utils/validator.js";
-
+/* 引入local */
+import local from '@/utils/local';
 export default {
   data() {
     //确认密码验证函数
@@ -104,8 +105,31 @@ export default {
             account: this.loginForm.account,
             password: this.loginForm.password
           };
-          alert("登录成功");
-          this.$router.push("/home");
+          //检查用户名和密码是否正确
+          this.request.post('login/checklogin',params)
+            .then(res=>{
+              //获取后端响应的数据
+              let {code,reason,token}=res
+               if(code==0){
+                 //把token存入浏览器
+                 local.save('token',token)
+                 //成功
+                 //弹成功提示
+                this.$message({
+                  type:'success',
+                  message:reason
+                })
+                 this.$router.push("/home");//跳转到首页
+               }else if(code===1){
+                 //失败
+                 //弹失败提示
+                 this.$message.error(reason)
+               }
+            })
+            .catch(err=>{
+                console.log(err);
+                
+            })
         } else {
           console.log("前端验证没有通过，不允许提交");
           return false;
@@ -117,7 +141,8 @@ export default {
     resetForm() {
       //重置表单
       this.$refs.loginForm.resetFields();
-    }
+    },
+    
   }
 };
 </script>

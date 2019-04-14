@@ -46,6 +46,7 @@ import { passwordReg } from "@/utils/validator";
 import { log } from 'util';
 export default {
   data() {
+
     //自定义新密码验证函数
     const inputNewPassword = (rule, value, callback) => {
       if (value === "") {
@@ -109,15 +110,35 @@ export default {
             newPassword:this.modifyForm.newPassword,
           };
           console.log(params);
-          alert('修改成功')
+          this.$message({
+            type:'success',
+            message:'修改成功'
+          })
           this.$router.push('/home/accontmanage')
         } else {
           console.log('前端验证未通过，请重新提交');
           return false
         }
       });
-    }
+    },
+    //获取当前帐号原密码
+   getCurrentoldPassword(){
+     this.request.get("/account/oldPassword")
+      .then(res=>{
+      console.log(res);
+      
+      })
+      .catch(err=>{
+        console.log(err);
+      })
+   }
+  },
+  created(){
+    //调用函数,获取当前登录帐号密码
+    this.getCurrentoldPassword()
+
   }
+
 };
 </script>
 <style lang="less">

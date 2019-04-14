@@ -11,7 +11,7 @@
 
       <!-- 右侧头像和当前登录用户帐号名 -->
       <el-col :span="2">
-        <el-row >
+        <el-row>
           <!-- 头像 -->
           <el-col :span="12">
             <div class="avatar">
@@ -20,14 +20,15 @@
           </el-col>
           <!-- 登录帐号名 -->
           <el-col :span="12">
-            <el-dropdown>
-                <span class="el-dropdown-link">
-                  存折<i class="el-icon-arrow-down el-icon--right"></i>
-                </span>
-                <el-dropdown-menu slot="dropdown">
-                    <el-dropdown-item command="a">个人中心</el-dropdown-item>
-                    <el-dropdown-item command="b">退出系统</el-dropdown-item>
-                </el-dropdown-menu>
+            <el-dropdown @command="handleCommand">
+              <span class="el-dropdown-link">
+                {{account}}
+                <i class="el-icon-arrow-down el-icon--right"></i>
+              </span>
+              <el-dropdown-menu slot="dropdown">
+                <el-dropdown-item command="personal">个人中心</el-dropdown-item>
+                <el-dropdown-item command="logout">退出系统</el-dropdown-item>
+              </el-dropdown-menu>
             </el-dropdown>
           </el-col>
         </el-row>
@@ -36,7 +37,51 @@
   </div>
 </template>
 <script>
-export default {};
+//引入local
+import local from "@/utils/local";
+export default {
+  data() {
+    return {
+      account: ""
+    };
+  },
+  methods: {
+    //点击下拉菜单项触发函数
+    handleCommand(command) {
+      if (command === "personal") {
+        console.log("个人中心");
+      } else if (command === "logout") {
+        //清楚token
+        local.remove("token");
+        //退出提示
+        this.$message({
+          type: "success",
+          message: "退出成功，欢迎下次登录"
+        });
+        setTimeout(() => {
+          //跳转到登录页面
+          this.$router.push("/login");
+        }, 1000);
+      }
+    },
+    //获取当前登录账号
+    getCurrentAccount() {
+      this.request
+        .get("/login/currentaccount")
+        .then(res => {
+          this.account = res;
+        })
+        .catch(err => {
+          console.log(err);
+          
+        });
+    }
+  },
+  created() {
+        // 调用函数 获取当前登录账号
+        this.getCurrentAccount();
+    }
+};
 </script>
 <style lang="less">
 @import "./top.less";
