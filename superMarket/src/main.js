@@ -5,7 +5,9 @@ import router from './router'
 //引入local文件
 import local from '@/utils/local'
 
-
+// 引入echarts且挂载在原型上
+import echarts from 'echarts'
+Vue.prototype.echarts = echarts;
 
 // 引入request.js
 import request from './utils/request'

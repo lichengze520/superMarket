@@ -149,8 +149,6 @@ export default {
         .then(res => {
           // 接收后端返回的数据
            let {total,  data} = res;
-          console.log(res);
-          
           // 赋值给对应变量
           this.total = total;
           this.accountTableData = data;

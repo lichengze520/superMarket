@@ -65,6 +65,7 @@ router.post('/checklogin', (req,res)=>{
 //获取当前帐号登录名
 router.get('/currentaccount',(req,res)=>{
      //响应当前的帐号名给前端，使用express-jwt验证token后会把token的值存入req.user,其实就是当前登录帐号数据对象
+     console.log(req.user);
      res.send(req.user.account)
 })
 module.exports = router;

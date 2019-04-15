@@ -43,9 +43,28 @@
 <script>
 //引入工具函数
 import { passwordReg } from "@/utils/validator";
-import { log } from 'util';
+import local from "@/utils/local";
 export default {
   data() {
+    //自定义原密码验证函数
+    const oldPassword = (rule, value, callback) => {
+      //发送post请求 发送axios给后端
+      this.request
+        .post("account/oldPassword", { oldPassword: value })
+        .then(res => {
+          //接收数据
+          let { code, reason } = res;
+          //判断
+          if(code===0){
+             callback()//成功
+          }else if(code===1){
+              callback(new Error(reason))//失败
+          }
+        })
+        .catch(err => {
+          console.log(err);
+        });
+    };
 
     //自定义新密码验证函数
     const inputNewPassword = (rule, value, callback) => {
@@ -85,7 +104,7 @@ export default {
       rules: {
         //原密码
         oldPassword: [
-          { required: true, message: "请输入原密码", trigger: "blur" } //非空
+          { required: true, validator: oldPassword, trigger: "blur" } //非空
         ],
         //新密码
         newPassword: [
@@ -104,41 +123,43 @@ export default {
       this.$refs.modifyForm.validate(valid => {
         //如果前端验证通过valid就是true,否则就是false
         if (valid) {
-          //收集帐号数据
-          let params = {
-            oldPassword:this.modifyForm.oldPassword,
-            newPassword:this.modifyForm.newPassword,
-          };
-          console.log(params);
-          this.$message({
-            type:'success',
-            message:'修改成功'
+          //收集新密码帐号数据
+          let params = { newPassword: this.modifyForm.newPassword, };
+          //发送post请求给后端
+          this.request.post('/account/savenewpassword',params)
+          .then(res=>{
+            //接收数据
+            let {code,reason}=res;
+            //判断
+            if(code===0){
+             //弹成功提示
+             this.$message({
+               type:'succses',
+               message:reason
+             })
+             //删除token
+             local.remove('local')
+             //跳转到登录界面
+             setTimeout(() => {
+                this.$router.push('/login')
+             }, 1000);
+            }else if(code===1){
+               //弹提示
+               this.$message.error(reason)
+            }
+             
           })
-          this.$router.push('/home/accontmanage')
+          .catch(err=>{
+            console.log(err);
+            
+          })
+       
         } else {
-          console.log('前端验证未通过，请重新提交');
-          return false
+          return false;
         }
       });
-    },
-    //获取当前帐号原密码
-   getCurrentoldPassword(){
-     this.request.get("/account/oldPassword")
-      .then(res=>{
-      console.log(res);
-      
-      })
-      .catch(err=>{
-        console.log(err);
-      })
-   }
-  },
-  created(){
-    //调用函数,获取当前登录帐号密码
-    this.getCurrentoldPassword()
-
+    }
   }
-
 };
 </script>
 <style lang="less">

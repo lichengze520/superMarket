@@ -18,18 +18,18 @@ const secretKey = 'itsource';
 const expressJwt = require('express-jwt');
 
 // 验证token的合法性
-router.use(expressJwt ({
-    secret: secretKey
+router.use(expressJwt({
+	secret: secretKey
 }).unless({
-    path: ['/login/checklogin']  // 除了这个地址，其他的URL都需要验证（其他的所有请求 都要带上token 才能获取数据 否则不能获取到数据）
-})); 
+	path: ['/login/checklogin'] // 除了这个地址，其他的URL都需要验证（其他的所有请求 都要带上token 才能获取数据 否则不能获取到数据）
+}));
 // 路由拦截器
 router.use(function (err, req, res, next) {
-    // 如果前端没有token或者是错误的token 就会抛出如下错误
-    if (err.name === 'UnauthorizedError') { 
-        // 响应给前端token无效的信息
-        res.status(401).send('token不合法...');
-    }
+	// 如果前端没有token或者是错误的token 就会抛出如下错误
+	if (err.name === 'UnauthorizedError') {
+		// 响应给前端token无效的信息
+		res.status(401).send('token不合法...');
+	}
 })
 /* 添加账号路由 */
 router.post('/accountadd', (req, res) => {
@@ -123,65 +123,127 @@ router.get('/editaccount', (req, res) => {
 /* 修改-保存新数据 */
 router.post('/saveeditaccount', (req, res) => {
 	//接收参数
-	let {account,userGroup,editId} = req.body
+	let {
+		account,
+		userGroup,
+		editId
+	} = req.body
 	//构sql
-	const sqlStr=`update account set account='${account}', user_group='${userGroup}' where id=${editId}`;
+	const sqlStr = `update account set account='${account}', user_group='${userGroup}' where id=${editId}`;
 	//执行sql
-	connection.query(sqlStr,(err,data)=>{
+	connection.query(sqlStr, (err, data) => {
 		if (err) throw err;
 		//判断成功就返回成功的数据对象，否则返回失败的数据对象
-		if(data.affectedRows>0){
-           res.send({code:0,reason:'修改成功'})
-		}else{
-			res.send({code:1,reason:'修改失败'})
+		if (data.affectedRows > 0) {
+			res.send({
+				code: 0,
+				reason: '修改成功'
+			})
+		} else {
+			res.send({
+				code: 1,
+				reason: '修改失败'
+			})
 		}
 	})
 })
 /* 批量删除 */
-router.get('/batchdel',(req,res)=>{
-  //接收id
-  let {idArr}=req.query
-  //构造sql
-  const sqlStr=`delete from account where id in (${idArr})`
-  //执行sql
-  connection.query(sqlStr,(err,data)=>{
-	  if (err) throw err;
-	//判断
-	if(data.affectedRows>0){
-       res.send({code:0,reason:'批量删除成功'})
-	}else{
-		res.send({code:1,reason:'批量删除失败'})
-	}
-  })
+router.get('/batchdel', (req, res) => {
+	//接收id
+	let {
+		idArr
+	} = req.query
+	//构造sql
+	const sqlStr = `delete from account where id in (${idArr})`
+	//执行sql
+	connection.query(sqlStr, (err, data) => {
+		if (err) throw err;
+		//判断
+		if (data.affectedRows > 0) {
+			res.send({
+				code: 0,
+				reason: '批量删除成功'
+			})
+		} else {
+			res.send({
+				code: 1,
+				reason: '批量删除失败'
+			})
+		}
+	})
 })
 
 /* 分页路由 */
-router.get('/accountlistbypage',(req,res)=>{
+router.get('/accountlistbypage', (req, res) => {
 	//接收参数
-	let {currentPage,pageSize}=req.query;
+	let {
+		currentPage,
+		pageSize
+	} = req.query;
 	//构造sql
-	let sqlStr=`select * from account order by create_date desc`;
+	let sqlStr = `select * from account order by create_date desc`;
 	//执行sql
-	connection.query(sqlStr,(err,data)=>{
+	connection.query(sqlStr, (err, data) => {
 		if (err) throw err
 		//计算数据总条数
-		let total=data.length;
+		let total = data.length;
 		//计算调过多少条
-		let n=(currentPage-1)*pageSize
+		let n = (currentPage - 1) * pageSize
 		//拼接分页sql
 		sqlStr += ` limit ${n}, ${pageSize}`;
 		//执行sql
-		connection.query(sqlStr,(err,data)=>{
+		connection.query(sqlStr, (err, data) => {
 			if (err) throw err;
 			//把数据总条数和每个页码对应的数据发给前端
-			res.send({total,data})
+			res.send({
+				total,
+				data
+			})
 		})
 	})
 })
 
-/* 获取原密码 */
-router.get('/oldPassword',(req,res)=>{
-	//获取原密码
-	res.send(req.user.password)
+/* 检查密码 */
+router.post('/oldPassword', (req, res) => {
+	//接收前端传过来的用户输入的密码
+	let {
+		oldPassword
+	} = req.body;
+	//获取当前的用户和密码
+	let {
+		password
+	} = req.user;
+	//判断
+	if (oldPassword === password) {
+		res.send({
+			code: 0,
+			reason: '原密码输入正确'
+		})
+	} else {
+		res.send({
+			code: 1,
+			reason: '原密码输入错误'
+		})
+	}
 })
+//保存密码
+router.post('/savenewpassword', (req, res) => {
+	//接收新密码
+	let { newPassword } = req.body;
+	// //获取当前登录用户的id
+	 let {id}=req.user;
+	// //构造sql
+	const sqlStr=`update account set password='${newPassword}' where id=${id}`;
+	//执行sql
+	connection.query(sqlStr,(err,data)=>{
+		if (err) throw err;
+		if (data.affectedRows>0){
+        res.send({code:0,reason:'密码修改成功，请重新登录'})
+		}else{
+			res.send({code:1,reason:'密码修改失败'}) 
+		}
+	})
+})
+
+
 module.exports = router;
