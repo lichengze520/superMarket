@@ -36,80 +36,29 @@ export default {
     return {
       //导航菜单数据
       menus: [
-        //系统管理
-        {
-          iconClass: "el-icon-menu",
-          title: "系统管理",
-          children: [
-            //子菜单
-            { path: "/home/systeminfo", subTitle: "系统信息" }
-          ]
-        },
-        //帐号管理
-        {
-          iconClass: "el-icon-mobile-phone",
-          title: "帐号管理",
-          children: [
-            //子菜单
-            { path: "/home/accontmanage", subTitle: "帐号管理" },
-            { path: "/home/accontadd", subTitle: "添加帐号" },
-            { path: "/home/passwordmodify", subTitle: "密码修改" }
-          ]
-        },
-        //商品管理
-        {
-          iconClass: "el-icon-rank",
-          title: "商品管理",
-          children: [
-            //子菜单
-            { path: "/home/shopmanage", subTitle: "商品管理" },
-            { path: "/home/shopadd", subTitle: "添加商品" }
-          ]
-        },
-        //统计管理
-        {
-          iconClass: 'el-icon-upload',
-          title: "统计管理",
-          children: [
-            //子菜单
-            { path: "/home/saletotal", subTitle: "销售统计" },
-            { path: "/home/stocktotal", subTitle: "进货统计" }
-          ]
-        },
-        //进货管理
-        {
-          iconClass: "el-icon-goods",
-          title: "进货管理",
-          children: [
-            //子菜单
-            { path: "/home/addrepertory", subTitle: "添加库存" },
-            { path: "/home/repertorymanage", subTitle: "库存管理" }
-          ]
-        },
-        //出货管理
-        {
-          iconClass: "el-icon-sold-out",
-          title: "出货管理",
-          children: [
-            //子菜单
-            { path: "/home/saleslist", subTitle: "销售列表" },
-            { path: "/home/goodsout", subTitle: "商品出库" },
-            { path: "/home/goodsreturn", subTitle: "商品退货" }
-          ]
-        },
-        //会员管理
-        {
-          iconClass: "el-icon-menu",
-          title: "会员管理 ",
-          children: [
-            //子菜单
-            { path: "/home/memberadd", subTitle: "添加会员帐号" },
-            { path: "/home/membermanage", subTitle: "会员帐号管理" }
-          ]
-        }
+       
       ]
     };
+  },
+  methods:{//菜单权限
+    getMenus(){
+      this.request.get('/account/menus')
+      .then(res=>{
+        
+        //接收后端响应的菜单
+        this.menus=res.accessMenu
+        
+      })
+      .catch(err=>{
+        console.log(err);
+      })
+    }
+  },
+  created(){
+    //调用请求菜单数据
+    this.getMenus()
   }
+
 };
 </script>
 

@@ -15,7 +15,7 @@
           <!-- 头像 -->
           <el-col :span="12">
             <div class="avatar">
-              <img src="./img (2).jpg" alt="头像" width="100%" height="100%">
+              <img width="100%" height="100%" :src="imgUrl" alt>
             </div>
           </el-col>
           <!-- 登录帐号名 -->
@@ -42,14 +42,15 @@ import local from "@/utils/local";
 export default {
   data() {
     return {
-      account: ""
+      account: "",
+      imgUrl: ""
     };
   },
   methods: {
     //点击下拉菜单项触发函数
     handleCommand(command) {
       if (command === "personal") {
-        console.log("个人中心");
+        this.$router.push("/home/personal");
       } else if (command === "logout") {
         //清楚token
         local.remove("token");
@@ -65,22 +66,27 @@ export default {
       }
     },
     //获取当前登录账号
-    getCurrentAccount() {
+    getUserInfo() {
       this.request
-        .get("/login/currentaccount")
+        .get("/account/accountinfo")
         .then(res => {
-          this.account = res;
+          console.log(res);
+          
+          //接收后端响应的数据
+          let { account, img_url } = res[0];
+          //赋值给对应的变量
+          this.account=account;
+          this.imgUrl = `http://127.0.0.1:666/${img_url}`;
         })
         .catch(err => {
           console.log(err);
-          
         });
     }
   },
   created() {
-        // 调用函数 获取当前登录账号
-        this.getCurrentAccount();
-    }
+    // 调用函数 获取当前登录账号
+    this.getUserInfo();
+  }
 };
 </script>
 <style lang="less">

@@ -38,6 +38,7 @@
           :data="goodsTableData"
           tooltip-effect="dark"
           style="width: 100%"
+          @selection-change="handleSelectionChange"
         >
           <!-- 选择框 -->
           <el-table-column type="selection" width="55"></el-table-column>
@@ -81,8 +82,7 @@
         </el-table>
 
         <!-- 修改模态框 -->
-        <el-dialog width="400px" title="修改账号" :visible.sync="dialogFormVisible">
-          <!-- 修改表单 -->
+        <el-dialog width="400px" title="修改" :visible.sync="dialogFormVisible">
           <el-form :model="editForm" :rules="rules" ref="editForm">
             <!-- 账号 -->
             <el-form-item prop="account" style="width: 320px;" label="账号" label-width="100px">
@@ -90,7 +90,7 @@
             </el-form-item>
 
             <!-- 用户组 -->
-            <el-form-item prop="userGroup" label="用户组" label-width="100px">
+            <el-form-item prop="userGroup" label="用户组" label-width="80px">
               <el-select v-model="editForm.userGroup" placeholder="请选择用户组">
                 <el-option label="超级管理员" value="超级管理员"></el-option>
                 <el-option label="普通用户" value="普通用户"></el-option>
@@ -137,54 +137,76 @@ export default {
       goodsTableData: [
         // 表格数据
       ],
+      editId: "",
       dialogFormVisible: false, // 模态框显示隐藏
-      editForm: {}, // 修改
+      editForm: {
+        account: "",
+        userGroup: ""
+      }, // 修改
       rules: {}, // 验证规则
       currentPage: 1, // 当前页码
       pageSize: 3, // 每页条数
-      total: 0 // 总条数
+      total: 0, // 总条数
+      selectedId: [] // 批量删除选中id数组
     };
   },
   methods: {
     //修改
-    handleEdit() {},
+    handleEdit(id) {
+      this.dialogFormVisible = true; //显示模态框
+      //把要修改的id保存起来
+      this.editId = id;
+      //发送请求给后端
+      this.request
+        .get("/goods/edit", { id })
+        .then(res => {
+          this.editForm.account = res[0].cateName;
+          this.editForm.userGroup = res[0].costPrice;
+        })
+        .catch(err => {
+          console.log(err);
+        });
+    },
+    //保存修改
+    saveEdit() {},
     //删除
     handleDelete(id) {
       //优化客户体验
-       this.$confirm('你确定要删除吗?', '温馨提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-      }).then(()=>{
-        this.request
-          .get("goods/delgood", { id })
-          .then(res => {
-            //接收参数
-            let {code,reason}=res
-            //判断
-            if(code===0){
-              //弹提示
-              this.$message({
-                type:'success',
-                message:reason
-              })
-              //刷新列表
-               this.getGoodsListByPage()
-            }else if(code===1){
-              //弹提示
-              this.$message.error(reason)
-            }
-          })
-          .catch(err => {
-            console.log(err);
-          });
+      this.$confirm("你确定要删除吗?", "温馨提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
       })
-      .catch(err=>{
-        this.$message({
-          type: 'info',
-            message: '已取消删除'
+        .then(() => {
+          this.request
+            .get("goods/delgood", { id })
+            .then(res => {
+              //接收参数
+              let { code, reason } = res;
+              //判断
+              if (code === 0) {
+                //弹提示
+                this.$message({
+                  type: "success",
+                  message: reason
+                });
+                //刷新列表
+                this.getGoodsListByPage();
+              } else if (code === 1) {
+                //弹提示
+                this.$message.error(reason);
+              }
+            })
+            .catch(err => {
+              console.log(err);
+            });
         })
-      })
+        .catch(err => {
+          this.$message({
+            type: "info",
+            message: "已取消删除"
+          });
+        });
     },
     //请求所有商品数据
     /* getGoodsList() {
@@ -242,10 +264,59 @@ export default {
       this.currentPage = val;
       this.getGoodsListByPage();
     },
+    handleSelectionChange(val) {
+      // 获取被选中的id 放入一个数组
+      this.selectedId = val.map(v => v.id);
+    },
     //批量删除
-    batchDel() {},
+    batchDel() {
+      //如果没有选中，直接不执行，return
+      if(!this.selectedId.length){
+        this.$message.error('请选择以后在操作')
+        return
+      }
+      //优化删除体验
+      this.$confirm("你确定要批量删除吗?", "温馨提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      })
+        .then(() => {
+          //收集选中的数据id
+          let params = { idArr: this.selectedId };
+          //发送请求给后端 把选中的id一起发给后端
+          this.request
+            .get("/goods/batchdel", params)
+            .then(res => {
+              //接收数据
+              let { code, reason } = res;
+              if (code === 0) {
+                //弹提示
+                this.$message({
+                  type: "success",
+                  message: reason
+                });
+                //刷新列表
+                this.getGoodsListByPage();
+              } else if (code === 1) {
+                this.$message.error(reason);
+              }
+            })
+            .catch(err => {
+              console.log(err);
+            });
+        })
+        .catch(() => {
+          this.$message({
+            type: "info",
+            message: "已取消删除"
+          });
+        });
+    },
     //取消选择
-    cancelSelect() {}
+    cancelSelect() {
+      this.$refs.goodsTableData.clearSelection(); // 选中整个表格 调用函数取消选择
+    }
   },
   //钩子函数
   created() {

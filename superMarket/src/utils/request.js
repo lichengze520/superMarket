@@ -8,6 +8,7 @@ import local from '@/utils/local'
 
 // 设置请求的服务器根目录
 axios.defaults.baseURL ='http://127.0.0.1:666';
+// axios.defaults.baseURL ='http://172.16.11.185:666';
 // axios请求拦截器
 axios.interceptors.request.use(config => {
     // 获取token

@@ -150,6 +150,35 @@ router.get('/delgood', (req, res) => {
   })
 })
 
+//修改-数据回填
+router.get('/edit',(req,res)=>{
+ //接收id
+ let {id}=req.query
+ //构造sql
+ const sqlStr=`select * from goods where id=${id}`
+//执行sql
+connection.query(sqlStr,(err,data)=>{
+    if (err) throw err;
+    res.send(data)//查询到的数据响应给前端
+})
+})
+
+/* 批量删除 */
+router.get('/batchdel',(req,res)=>{
+  // 接收id
+  let { idArr } = req.query;
+  // 构造sql
+	const sqlStr = `delete from goods where id in (${idArr})`;
+	// 执行sql
+	connection.query(sqlStr, (err, data) => {
+		if (err) throw err;
+		if (data.affectedRows > 0) {
+			res.send({code: 0, reason: '批量删除成功!'})
+		} else {
+			res.send({code: 1, reason: '批量删除失败!'})
+		}
+	})
 
 
+})
 module.exports = router;

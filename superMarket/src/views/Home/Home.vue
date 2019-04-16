@@ -11,13 +11,15 @@
       <el-container>
         <!-- 头部 -->
         <el-header>
-          <top>头</top>
+          <!-- 自定义头部组件 -->
+
+          <top ref="top"></top>
         </el-header>
 
         <!-- 主体-->
         <el-main>
           <!-- 路由出口 -->
-          <router-view></router-view>
+          <router-view @A="B"></router-view>
         </el-main>
 
         <!-- 页脚 -->
@@ -39,6 +41,11 @@ export default {
     LeftNav,
     Top,
     Bottom,
+  },
+  methods:{
+    B(){
+      this.$refs.top.getUserInfo()
+    }
   }
 };
 </script>
